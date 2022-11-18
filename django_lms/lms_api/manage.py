@@ -2,11 +2,11 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from dotenv import load_dotenv  # ← new
+# from dotenv import load_dotenv  # ← new
 
 def main():
     """Run administrative tasks."""
-    load_dotenv()  # ← new
+    # load_dotenv()  # ← new
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lms_api.settings')
     try:
         from django.core.management import execute_from_command_line
