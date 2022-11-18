@@ -191,6 +191,7 @@ class UserQuizAnswers(models.Model):
 class Certificate(models.Model):
     username =models.ForeignKey(Account,on_delete=models.CASCADE,null=True)
     is_eligible=models.BooleanField(default=True)
+    course=models.CharField(max_length=255,null=True)
    
     
     class Meta:
@@ -202,6 +203,8 @@ class PostCertificate(models.Model):
     certicate=models.ForeignKey(Certificate,on_delete=models.CASCADE,null=True)
     usercertificate=models.FileField(upload_to='user/certificate',null=False)
     success=models.BooleanField(default=True)
+    course=models.IntegerField(null=True)
+    
     
     class Meta:
         verbose_name_plural="11.postCertificate" 

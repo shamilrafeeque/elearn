@@ -13,7 +13,7 @@ class AccountAdmin(admin.ModelAdmin):
     fieldsets =()
 class MarksAdmin(admin.ModelAdmin):
     model=Marks
-    list_display=('id','user','mark')
+    list_display=('id','user','mark','Quiz','question_no')
     
 class TotalMarksAdmin(admin.ModelAdmin):
     model=Marks

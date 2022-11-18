@@ -44,11 +44,11 @@ class UserQuizAnswersAdmin(admin.ModelAdmin):
     
 class CertificateAdmin(admin.ModelAdmin):
     model=UserQuizAnswers
-    list_display=('id','username','is_eligible')
+    list_display=('id','username','is_eligible','course')
 
 class PostCertificateAdmin(admin.ModelAdmin):
     model=PostCertificate
-    list_display=('id','certicate','usercertificate','success')
+    list_display=('id','certicate','usercertificate','success','course')
 
 admin.site.register(Tutors,TutorAdmin)
 admin.site.register(CourseCategory)

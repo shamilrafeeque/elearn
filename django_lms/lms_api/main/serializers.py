@@ -82,4 +82,4 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
 class PostCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model=models.PostCertificate
-        fields = ['id','certicate','usercertificate','success']
+        fields = ['id','certicate','usercertificate','success','course']

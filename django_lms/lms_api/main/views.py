@@ -539,65 +539,82 @@ def addQuiz(request,id):
     data=request.data
     tutor=request.user
     print(tutor,'yyyy')
-    
-    crs=Course.objects.get(id=id)
-    
-    print(crs.teacher,'couse')
-    print(data['course'])
-    # s=Quiz.objects.get(course=data['course'])
-    # print(s,'kkkkkkkkkkkkkk')
-    if not Quiz.objects.filter(course=data['course']).exists():
-        print('00000000000000')
-        if not Quiz.objects.filter(title=data['title']).exists():
-            print(type(request.data['teacher']))
-            print(type(crs.teacher.id))
-            if crs.teacher==tutor and (int(request.data['teacher'])==crs.teacher.id):
-                            
-                serializer=QuizSerializer(data=data)
-                print(serializer)
-                
-                if serializer.is_valid():
-                    serializer.save()
+    ids=request.data['course']
+    print(id)
+    print(type(id))
+    print(type(ids))
+    print(ids)
+    if str(ids)==str(id):
+        crs=Course.objects.get(id=id)
+        
+        print(crs.teacher,'couse')
+        print(data['course'])
+        # s=Quiz.objects.get(course=data['course'])
+        # print(s,'kkkkkkkkkkkkkk')
+        if not Quiz.objects.filter(course=data['course']).exists():
+            print('00000000000000')
+            if not Quiz.objects.filter(title=data['title']).exists():
+                print(type(request.data['teacher']))
+                print(type(crs.teacher.id))
+                if crs.teacher==tutor and (int(request.data['teacher'])==crs.teacher.id):
+                                
+                    serializer=QuizSerializer(data=data)
+                    print(serializer)
                     
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            
+                    if serializer.is_valid():
+                        serializer.save()
+                        
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                
+                else:
+                    return Response('this course not in your course list')
             else:
-                return Response('this course not in your course list')
+                    return Response('not allowed,title allredy added')
         else:
-                return Response('not allowed')
+            return Response("allready added quiz")
     else:
-        return Response("allready added quiz")
+        return Response("miss matches courses")
+        
 
     
 @api_view(['POST'])
 @authentication_classes([JWTTutorAuthentication])
 def assignQuiz(request,id):
     data=request.data
+    print(type(data['number']),'ooooooooooooooo')
     tutor=request.user
     print(tutor)
-    quiz=Quiz.objects.get(id=id)
-    
-    print(quiz.teacher)
-    print(type(quiz.teacher))
-    print(type(tutor))
-    print(list[(quiz.teacher)])
-    if not QuizQuestions.objects.filter(questions=data['questions']).exists():
-        print('???????????????????')
-        if quiz.teacher==tutor:
-            print('************')
-                        
-            serializer=QuizQuestionSerializer(data=data)
-            print(serializer)
-            
-            if serializer.is_valid():
-                serializer.save()
-                
-            return Response(serializer.data,status=status.HTTP_200_OK)
+    if str(id)==str(data['quiz']):
+        quiz=Quiz.objects.get(id=id)
         
+        print(quiz.teacher)
+        print(type(quiz.teacher))
+        print(type(tutor))
+        print(list[(quiz.teacher)])
+        
+        if not QuizQuestions.objects.filter(questions=data['questions']).exists():
+            if not QuizQuestions.objects.filter(number=data['number']).exists():
+            
+                print('???????????????????')
+                if quiz.teacher==tutor:
+                    print('************')
+                                
+                    serializer=QuizQuestionSerializer(data=data)
+                    print(serializer)
+                    
+                    if serializer.is_valid():
+                        serializer.save()
+                        
+                    return Response(serializer.data,status=status.HTTP_200_OK)
+                
+                else:
+                    return Response('this course not in your course list')
+            else:
+                return Response('The question number is allredy added')
         else:
-            return Response('this course not in your course list')
+                return Response('The question is allredy added')
     else:
-            return Response('The question is allredy added')
+        return Response("miss matches quiz")
     # except:
     #     return Response("matching query does not exist")
     
@@ -623,6 +640,6 @@ def Postcertificate(request,id):
             
             serializer.save()
             
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    else:
-        return Response('not matching query in certificate')
+    return Response(serializer.data,status=status.HTTP_200_OK)
+    # else:
+    #     return Response('not matching query in certificate')

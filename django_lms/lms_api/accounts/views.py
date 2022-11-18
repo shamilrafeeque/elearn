@@ -461,14 +461,17 @@ def userParchaseCourse(request):
 @api_view(['GET'])  
 @permission_classes([IsAuthenticated])       
 def UsergetQuiz(request,id):
-    
-    user=purchaseCourse=Order.objects.filter(user=request.user,isPaid=True)
-    print(purchaseCourse)
-    if user:
-        quiz=Quiz.objects.get(course=id)
-        print(quiz)
-        serailzer=QuizSerializer(quiz)
-    return Response(serailzer.data)
+    try:
+        user=purchaseCourse=Order.objects.filter(user=request.user,isPaid=True)
+        print(purchaseCourse)
+        if user:
+            quiz=Quiz.objects.get(course=id)
+            print(quiz)
+            serailzer=QuizSerializer(quiz)
+        return Response(serailzer.data)
+    except:
+        message = {'detail':'The mathcing query does  not exists'}
+        return Response(message,status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])  
@@ -486,65 +489,73 @@ def usergetQustion(request,id):
 @permission_classes([IsAuthenticated])  
 def userPostAnswer(request,id):
     # user=purchaseCourse=Order.objects.filter(user=request.user,isPaid=True)
-    user=Order.objects.filter(user=request.user,isPaid=True)
-    # print(purchaseCourse)
-    data=request.data
-    if user:
-        print('PPPPPPPPPPPPPPPPPP')
-        answer=QuizQuestions.objects.filter(quiz=id)
-        s=answer
-        print(s)
-        totalmarks=0
-        
-        # print(mark,'printappendfirst')
-        if not UserQuizAnswers.objects.filter(question_no=data['question_no']).exists():
-            serializer=QuizAnswerSerializer(data=data)
-            print(serializer)
-            if QuizQuestions.objects.filter(right_ans=data['answer']):
-                print('******************')
-                totalmarks+=10
-                print('******************')
-                
-                # s=totalmarks
-                # print(mark,'mark')
-                print('******************')
-                
-                print('""""""""""""""""""""""""""')
-                # l=mark.append(s)
-                # print(l,'printappendlllllll')
+    try:
+        user=Order.objects.filter(user=request.user,isPaid=True)
+        # print(purchaseCourse)
+        data=request.data
+        if user:
+            print('PPPPPPPPPPPPPPPPPP')
+            answer=QuizQuestions.objects.filter(quiz=id)
+            s=answer
+            print(s)
+            totalmarks=0
+            
+            # print(mark,'printappendfirst')
+            if not UserQuizAnswers.objects.filter(question_no=data['question_no']).exists():
+                if QuizQuestions.objects.filter(number=data['question_no']):
+                    serializer=QuizAnswerSerializer(data=data)
+                    print(serializer)
+                    if QuizQuestions.objects.filter(right_ans=data['answer']):
+                        print('******************')
+                        totalmarks+=10
+                        print('******************')
+                        
+                        # s=totalmarks
+                        # print(mark,'mark')
+                        print('******************')
+                        
+                        print('""""""""""""""""""""""""""')
+                        # l=mark.append(s)
+                        # print(l,'printappendlllllll')
+                    else:
+                        pass
+                    if serializer.is_valid():
+                        serializer.save()
+                        marksss = Marks.objects.create(user=request.user,
+                                                    mark=totalmarks,question_no=request.data['question_no'],Quiz=request.data['QuizQuestions'])
+                        print(marksss)
+                        #print
+                        mrks=Marks.objects.filter(mark=10)
+                        print(mrks)
+                        total=[]
+                        for i in mrks:
+                            print(i.mark)
+                            total.append(i.mark)
+                        print(total)
+                        s=sum(total)
+                        totamarks=TotalMarks.objects.update(
+                            user=request.user,
+                            totalmark=s
+                        )
+                        print(sum(total))
+                        print(totamarks)
+                                
+                                
+                                
+                        
+                        # print(mark,'printappenddddddddddddddddddd')
+                        return Response(serializer.data)
+                    else:
+                        return Response("something went wrong")
+                else:
+                     return Response("please add correct question number")
             else:
-                pass
-            if serializer.is_valid():
-                serializer.save()
-                marksss = Marks.objects.create(user=request.user,
-                                             mark=totalmarks)
-                print(marksss)
-                #print
-                mrks=Marks.objects.filter(mark=10)
-                print(mrks)
-                total=[]
-                for i in mrks:
-                    print(i.mark)
-                    total.append(i.mark)
-                print(total)
-                s=sum(total)
-                totamarks=TotalMarks.objects.update(
-                    user=request.user,
-                    totalmark=s
-                )
-                print(sum(total))
-                print(totamarks)
-                        
-                        
-                        
-                
-                # print(mark,'printappenddddddddddddddddddd')
-            return Response(serializer.data)
+                # print(mark,'printappendlast')
+                return Response("Youn area allredy taks  this question")
         else:
-            # print(mark,'printappendlast')
-            return Response("Youn area allredy taks  this question")
-    else:
-        return Response("pleas add correct details")
+            return Response("pleas add correct details")
+    except:
+        return Response("something went wrong")
             
     
 # @api_view(['GET'])  
@@ -571,9 +582,10 @@ def userPostAnswer(request,id):
 @permission_classes([IsAuthenticated])  
 def ApplyCertificate(request,id):
     user=request.user
-    print(user)
-    try:
-        users=Order.objects.filter(order_course=id,user=request.user,isPaid=True)
+    print(user,'uuu')
+    users=Order.objects.filter(order_course=id,user=request.user,isPaid=True)
+
+    if users:
         print('************************')
         print(users)
         print('************************')
@@ -585,29 +597,34 @@ def ApplyCertificate(request,id):
             print('kkkkkkkkkkkkk')
     
         try:
-            quiz=Quiz.objects.get(course=id)
-            if quiz:
-                print("kkkjksdfdhfhdsuifhishd")
-                # print(quiz)
-                userintotal=TotalMarks.objects.filter(user=request.user).last()
-                print(userintotal.totalmark)
-                print("))))))))))))))))")
-                if int(userintotal.totalmark)>=int(90):
-                    print("elegible")
-                    if not Certificate.objects.filter(username=request.user).exists():
-                        cert=Certificate.objects.create(
-                            username=request.user,
-                            is_eligible=True
-                        )
-                        return Response("You are eligible for certficate")
+            if Quiz.objects.get(course=id):
+                # if quiz:
+                    print("kkkjksdfdhfhdsuifhishd")
+                    # print(quiz)
+                    userintotal=TotalMarks.objects.filter(user=request.user).last()
+                    print(userintotal.totalmark)
+                    print("))))))))))))))))")
+                    if int(userintotal.totalmark)>=int(90):
+                        print("elegible")
+                        if not Certificate.objects.filter(username=request.user).exists():
+                            cert=Certificate.objects.create(
+                                username=request.user,
+                                is_eligible=True,
+                                course=id
+                            )
+                            return Response("You are eligible for certficate")
+                        else:
+                            return Response("you are allredy applied,certicate is processing")
                     else:
-                        return Response("you are allredy applied,certicate is processing")
-                else:
-                    return Response("You are not eligible for certficate")
+                        return Response("You are not eligible for certficate")
+            else:
+                return Response("please attend quiz")
         except:
             return Response("please attend quiz")
-    except:
-        return Response("please pay the course")
+    else:
+            return Response("please pay the course")
+    
+       
     
 @api_view(['GET'])  
 @permission_classes([IsAuthenticated])   
