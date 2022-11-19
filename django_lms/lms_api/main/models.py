@@ -208,3 +208,6 @@ class PostCertificate(models.Model):
     
     class Meta:
         verbose_name_plural="11.postCertificate" 
+        
+    def __str__(self):
+        return str(self.certicate)

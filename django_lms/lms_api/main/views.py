@@ -22,7 +22,7 @@ from .models import (Assignments, Chapter, Course, CourseCategory, Quiz,
 from .serializers import (AssignmentSerializer, CategorySerializer,
                           ChapterSerializer, CourseSerializer,
                           QuizQuestionSerializer, QuizSerializer,
-                          TeacherSerializer, serializers,PostCertificateSerializer)
+                          TeacherSerializer, serializers,PostCertificateSerializer,teachercheckcertificateserializers)
 
 
 class TutorRegisterView(APIView):
@@ -640,6 +640,33 @@ def Postcertificate(request,id):
             
             serializer.save()
             
-    return Response(serializer.data,status=status.HTTP_200_OK)
+    return Response(serializer.data)
     # else:
     #     return Response('not matching query in certificate')
+    
+@api_view(['GET'])
+@authentication_classes([JWTTutorAuthentication])
+def teachercheckcertificate(request,id):
+    user=request.user
+    print(user)
+    print(id)
+    s=str(id)
+    print(s)
+    cert= Certificate.objects.filter(is_eligible=True)
+    print(cert)
+    print(cert.values())
+    for i in cert:
+        s=i.course
+    print(type(s))
+        
+    if cert:
+        print("mmmmmmmmm")
+        k=Certificate.objects.get(course=s)
+        print(k)
+        print('kkkkkkkkkkkkkk')
+        serializer=teachercheckcertificateserializers(k)
+        return Response(serializer.data)
+    else:
+        return Response(status=status.HTTP_302_FOUND)
+       
+    

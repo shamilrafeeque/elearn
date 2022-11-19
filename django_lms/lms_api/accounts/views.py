@@ -628,11 +628,13 @@ def ApplyCertificate(request,id):
     
 @api_view(['GET'])  
 @permission_classes([IsAuthenticated])   
-def GetCertificate(request):
+def GetCertificate(request,id):
     user=request.user.id
     print(user)
-    users=PostCertificate.objects.filter(certicate=user,success=True)
+    users=PostCertificate.objects.filter(success=True,course=str(id))
     print(users)
-    if user==True:
-         serailzer=PostCertificateSerializer(users,many=True)
-    return Response(serailzer.data)
+    if users:
+        serailzer=PostCertificateSerializer(users,many=True)
+        return Response(serailzer.data)
+    else:
+        return Response("not found certificate")

@@ -83,3 +83,10 @@ class PostCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model=models.PostCertificate
         fields = ['id','certicate','usercertificate','success','course']
+        depth=1
+        
+class teachercheckcertificateserializers(serializers.ModelSerializer):
+    class Meta:
+        model=models.Certificate
+        fields = ['id','username','is_eligible','course']
+        

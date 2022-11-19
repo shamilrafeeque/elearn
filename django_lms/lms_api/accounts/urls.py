@@ -30,7 +30,7 @@ urlpatterns = [
     path('applycertificate/<int:id>/',views.ApplyCertificate,name="applycertificate"),
     
     #getcertificate
-    path('getcertificate/',views.GetCertificate,name="GetCertificate"),
+    path('getcertificate/<int:id>/',views.GetCertificate,name="GetCertificate"),
     
     #adminpanel
     path('allusers/',views.getAllUsers,name="getallusers"),

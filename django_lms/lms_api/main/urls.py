@@ -48,6 +48,9 @@ urlpatterns = [
     path('assign_quiz/<int:id>/',views.assignQuiz,name="assignQuiz"),
     
     #postcertifiacte
+    path('teachercheckcertificate/<int:id>/',views.teachercheckcertificate,name="teachercheckcertificate"),
+    
     path('postcertificate/<int:id>/',views.Postcertificate,name="PostCertificate"),
+    
 
 ]
