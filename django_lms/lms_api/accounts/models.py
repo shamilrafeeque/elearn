@@ -95,16 +95,5 @@ class Account(AbstractBaseUser):
     
 
         
-class  Marks(models.Model):
-    mark=models.IntegerField(null=True)
-    user =models.ForeignKey(Account,on_delete=models.CASCADE,null =True)
-    Quiz=models.IntegerField(null=True)
-    question_no=models.IntegerField(null=True)
-    
-class TotalMarks(models.Model):
-    totalmark=models.IntegerField()
-    user =models.ForeignKey(Account,on_delete=models.CASCADE,null =True)
-    
-    def __str__(self):
-        return str(self.totalmark)  
+
         

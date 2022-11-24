@@ -11,11 +11,11 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.decorators import api_view,authentication_classes
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-from .models import Account,Marks,TotalMarks
-from .serializers import AccountSerializer,VerifyOtpSerializer,RecomentedCourseSerializer
+from .models import Account
+from .serializers import AccountSerializer,VerifyOtpSerializer,RecomentedCourseSerializer,CategorySerializer
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from main.models import Tutors,Course,Chapter,Assignments,UserAssignment,Quiz,QuizQuestions,UserQuizAnswers,Certificate,PostCertificate
+from main.models import Tutors,Course,Chapter,Assignments,UserAssignment,Quiz,QuizQuestions,UserQuizAnswers,Certificate,PostCertificate,TotalMarks,Marks,CourseCategory
 from payments.sereializers import OrderSerializer
 from main.serializers import CourseSerializer,ChapterSerializer,TeacherSerializer,AssignmentSerializer,userAssignmentSerailizer,QuizSerializer,QuizQuestionSerializer,QuizAnswerSerializer,PostCertificateSerializer
 from django.http import JsonResponse
@@ -23,6 +23,7 @@ from .verify import send,check
 from payments.models import Order
 from payments.models import AdminPercentage
 from django.db.models import Q
+from .helper import save_pdf
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -227,7 +228,7 @@ class TeacherAmount(APIView):
 #             return Response({'is_active':user.is_active})
 
 class AccountDetail(APIView):
-    
+    permission_classes=[IsAdminUser]
     """
     Retrieve, update or delete a snippet instance.
     """
@@ -263,15 +264,48 @@ class AccountDetail(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class AddCategories(APIView):
+    permission_classes=[IsAdminUser]
+    def put(self,request):
+        serializer = CategorySerializer(data=request.data)
+        if not CourseCategory.objects.filter(title=request.data['title']).exists():
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            message={'details':"allready added"}
+            return Response(message,status=status.HTTP_406_NOT_ACCEPTABLE)
 
         
+class MethodsCategories(APIView):
+    permission_classes=[IsAdminUser]
+    def get_object(self,pk):
+        try:
+            return CourseCategory.objects.get(pk=pk)
+        except Account.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = CategorySerializer(snippet)
+        return Response(serializer.data)
+    
+    
+    def patch(self, request, pk, format=None):
+        user = self.get_object(pk)
+        serializer = CategorySerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
-        
-        
-        
-        
-        
+    def delete(self, request, pk, format=None):
+        user = self.get_object(pk)
+        user.delete()
+        message={'detail':'category deleted'}
+        return Response(message,status=status.HTTP_204_NO_CONTENT)
         
         
 class BlockUSer(APIView):
@@ -427,17 +461,19 @@ def UserPostAssignment(request):
     print(data)
     users=Order.objects.filter(user=userss,isPaid=True)
     print(users,"check order")
-    # for i in users:
-    #     print (i.order_course)
-    serializer = userAssignmentSerailizer(data=data)
-    print('******************************')
-    print(serializer)
-    if serializer.is_valid():
-        
-        serializer.save()
-        return Response(serializer.data)
+    if not UserAssignment.objects.filter(assignmentsname=data['assignmentsname']).exists():
+        serializer = userAssignmentSerailizer(data=data)
+        print('******************************')
+        print(serializer)
+        if serializer.is_valid():
+            
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response("please add correct details")
     else:
-        return Response("please add correct details")
+        message = {'detail':'You are allready added Assignments'}
+        return Response(message,status=status.HTTP_406_NOT_ACCEPTABLE)
     
 @api_view(['GET'])  
 @permission_classes([IsAuthenticated])
@@ -526,17 +562,22 @@ def userPostAnswer(request,id):
                         print(marksss)
                         #print
                         mrks=Marks.objects.filter(mark=10)
-                        print(mrks)
+                        print(mrks,'markssss')
                         total=[]
                         for i in mrks:
                             print(i.mark)
                             total.append(i.mark)
                         print(total)
                         s=sum(total)
-                        totamarks=TotalMarks.objects.update(
+                        crse=Quiz.objects.get(id=id)
+                        print(crse)
+                        cours=crse.course
+                        totamarks=TotalMarks.objects.create(
                             user=request.user,
-                            totalmark=s
+                            totalmark=s,
+                            course=cours
                         )
+                        print("total marks is working")
                         print(sum(total))
                         print(totamarks)
                                 
@@ -601,12 +642,12 @@ def ApplyCertificate(request,id):
                 # if quiz:
                     print("kkkjksdfdhfhdsuifhishd")
                     # print(quiz)
-                    userintotal=TotalMarks.objects.filter(user=request.user).last()
+                    userintotal=TotalMarks.objects.filter(user=request.user,course=id).last()
                     print(userintotal.totalmark)
                     print("))))))))))))))))")
                     if int(userintotal.totalmark)>=int(90):
                         print("elegible")
-                        if not Certificate.objects.filter(username=request.user).exists():
+                        if not Certificate.objects.filter(username=request.user,course=id).exists():
                             cert=Certificate.objects.create(
                                 username=request.user,
                                 is_eligible=True,
@@ -620,7 +661,7 @@ def ApplyCertificate(request,id):
             else:
                 return Response("please attend quiz")
         except:
-            return Response("please attend quiz")
+            return Response("please attend quiz,something went wrong")
     else:
             return Response("please pay the course")
     
@@ -638,3 +679,42 @@ def GetCertificate(request,id):
         return Response(serailzer.data)
     else:
         return Response("not found certificate")
+    
+#DYNAMICSERTIFICATE
+@permission_classes([IsAuthenticated])   
+class GeneratePdf(APIView):
+    def get(self,request,stu_id,course_id):
+        print("OOOOOOOOOOOOOOOOOO")
+        user=request.user
+        print(user)
+        
+        print(user.id)
+        # ids=str(id)
+        # print(ids)
+        # print(type(ids))
+        if Certificate.objects.filter(username=user,course=course_id):
+            if user.id==stu_id:
+                print("************")
+                student_objs = Account.objects.get(id=stu_id)
+                course = Course.objects.get(id=course_id)
+                
+                print(student_objs)
+                print(course)
+                params = {
+                    
+                    'student_objs' : student_objs,
+                    'course' : course
+                }
+                file_name , status = save_pdf(params)
+
+                if not status:
+                    return Response({'status': 400})
+                
+                return Response({'status': 200, 'path':f'/media/static/{file_name}.pdf'})
+            else:
+                message = {'detail':'user id is diffrent'}
+                return Response(message)
+                
+        else:
+            message = {'detail':'You are not in certificate model'}
+            return Response(message)

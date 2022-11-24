@@ -12,7 +12,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/',views.RegisterView.as_view(),name='register'),
     path('verifyloginuserotp',views.VerifyUserOtp.as_view(),name='verifyloginuserotp'),
-    path('user_details/<int:pk>/', views.AccountDetail.as_view()),
+   
     
     #homepage
     path('userhome/',views.Allcourse,name='Allusers'),
@@ -32,7 +32,13 @@ urlpatterns = [
     #getcertificate
     path('getcertificate/<int:id>/',views.GetCertificate,name="GetCertificate"),
     
+    #dYNAMICCERTIFICATE
+     path('pdf/<int:stu_id>/<int:course_id>/' , views.GeneratePdf.as_view()),
+    
     #adminpanel
+    path('user_details/<int:pk>/', views.AccountDetail.as_view()),
+    path('addCatedories/', views.AddCategories.as_view()),
+    path('methodsCategories/<int:pk>/', views.MethodsCategories.as_view()),
     path('allusers/',views.getAllUsers,name="getallusers"),
     path('admin_panel/users/block/<int:id>/',views.BlockUSer.as_view()),
     path('admin_panel/tutoes/block/<int:id>/',views.BlockTutor.as_view()),

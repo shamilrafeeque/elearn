@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tutors,CourseCategory,Course,Chapter,Assignments,EnrolledCourses,UserAssignment,Quiz,QuizQuestions,UserQuizAnswers,Certificate,PostCertificate
+from .models import Tutors,CourseCategory,Course,Chapter,Assignments,EnrolledCourses,UserAssignment,Quiz,QuizQuestions,UserQuizAnswers,Certificate,PostCertificate,TotalMarks,Marks
 # from .models import models
 
 # Register your models here.
@@ -49,6 +49,14 @@ class CertificateAdmin(admin.ModelAdmin):
 class PostCertificateAdmin(admin.ModelAdmin):
     model=PostCertificate
     list_display=('id','certicate','usercertificate','success','course')
+    
+class MarksAdmin(admin.ModelAdmin):
+    model=Marks
+    list_display=('id','user','mark','Quiz','question_no')
+    
+class TotalMarksAdmin(admin.ModelAdmin):
+    model=TotalMarks
+    list_display=('id','user','totalmark','course')
 
 admin.site.register(Tutors,TutorAdmin)
 admin.site.register(CourseCategory)
@@ -63,7 +71,8 @@ admin.site.register(QuizQuestions,QuizQuestionsAdmin)
 admin.site.register(UserQuizAnswers,UserQuizAnswersAdmin)
 admin.site.register(Certificate,CertificateAdmin)
 admin.site.register(PostCertificate,PostCertificateAdmin)
-
+admin.site.register(Marks,MarksAdmin)
+admin.site.register(TotalMarks,TotalMarksAdmin)
 
 
 

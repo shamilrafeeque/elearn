@@ -7,7 +7,7 @@ from . import models
 # from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
-from main.models import Course
+from main.models import Course,CourseCategory
 
 class AccountSerializer(serializers.ModelSerializer):
     
@@ -43,46 +43,10 @@ class RecomentedCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model= Course
         fields=['id','category','teacher','title','description','featured_img','techs']   
-    # def save(self):
-    #     reg = models.Account(
-            
-    #         email=self.validated_data['email'],
-    #         username=self.validated_data['username'],
-    #     )
-    #     password=self.validated_data['password']
-    #     reg.set_password(password)
-    #     reg.save()
-    #     return reg
 
         
-        
 
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     print('888888888888888888')
-    # data=request.data
-    # user=models.Account.objects.get(data=data)
-    # @classmethod
-    # def get_token(cls, user):
-    #     token = super().get_token(user)
-    #     # token['is_staff'] = user.is_staff
-    #     # token['is_superuser'] = user.is_superuser
-    #     if user.is_active==True:
-    #         print(token)
-    #         return token
-    #     else:
-    #         return Response('The user is not active')
-    
-    # @classmethod
-    # def get_token(cls, user):
-    #     print("555555555555555555")
-    #     # token = super().get_token(user)
-    #     token=get_token(user)
-    #     # Add custom claims
-    #     token['username'] = user.username
-    #     # token['email'] = user.email
-    #     # # token['wallet_balance'] = user.wallet_balance
-    #     # token['is_superuser'] = user.is_superuser
-    #     # # token['mobile'] = user.mobile
-        
-    #     return token
-  
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CourseCategory
+        fields=['id','title','description']

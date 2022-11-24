@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Account,Marks,TotalMarks
+from .models import Account
 
 class AccountAdmin(admin.ModelAdmin):
     model = Account
@@ -11,17 +11,10 @@ class AccountAdmin(admin.ModelAdmin):
     filter_horizontal =()
     list_filter = ()
     fieldsets =()
-class MarksAdmin(admin.ModelAdmin):
-    model=Marks
-    list_display=('id','user','mark','Quiz','question_no')
-    
-class TotalMarksAdmin(admin.ModelAdmin):
-    model=Marks
-    list_display=('id','user','totalmark')
+
 # Register your models here.
 
 admin.site.register(Account,AccountAdmin)
-admin.site.register(Marks,MarksAdmin)
-admin.site.register(TotalMarks,TotalMarksAdmin)
+
 
 

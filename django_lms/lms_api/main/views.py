@@ -620,33 +620,51 @@ def assignQuiz(request,id):
     
 @api_view(['POST'])
 # @authentication_classes([JWTTutorAuthentication])
-def Postcertificate(request,id):
+def Postcertificate(request):
     data=request.data
     print(data)
     user=data['certicate']
-    user=Certificate.objects.filter(username=user)
-    # for i in user:
-    #     print(i.username)
-    print(user,'lllllllllllll')
-    
-    if user:
-        # k=PostCertificate.objects.create(certicate=user.username,usercertificate=data['usercertificate'],
-        #                                success=True)
-        # print(k)
-        serializer=PostCertificateSerializer(data=data)
-        print(serializer)
-        
-        if serializer.is_valid():
-            
-            serializer.save()
-            
-    return Response(serializer.data)
+    crse=data['course']
+    print(crse,';;;;;;;;;;;;;;')
+    print(crse,'kkkkkkkkkkkkkkkkkkk')
+    print(user)
+    print('lerrrrrrrrrrr')
+    try:
+        kk=Certificate.objects.get(course=crse)
+        print(kk,'lllllllllllllllll')
+        if kk:
+            if not Certificate.objects.filter(username=user,course=crse).exists():
+                user=Certificate.objects.filter(username=user)
+                # for i in user:
+                #     print(i.username)
+                print(user,'lllllllllllll')
+                
+                if user:
+                    # k=PostCertificate.objects.create(certicate=data['certicate'],usercertificate=data['usercertificate'],
+                    #                                success=True)
+                    # print(k)
+                    serializer=PostCertificateSerializer(data=data)
+                    print(serializer)
+                    print('lllllllllll')
+                    if serializer.is_valid():
+                        
+                        serializer.save()
+                        
+                    return Response(serializer.data)
+                else:
+                    return Response("You are not in certificatae list,somethomg went wrong")
+            else:
+                return Response("allready posted certiifcte")
+    except:
+        return Response("not matching query in certificate")
+    else:
+        return Response("not matching query in certificate")
     # else:
     #     return Response('not matching query in certificate')
     
 @api_view(['GET'])
 @authentication_classes([JWTTutorAuthentication])
-def teachercheckcertificate(request,id):
+def teachercheckcertificate(request):
     user=request.user
     print(user)
     print(id)
@@ -662,10 +680,13 @@ def teachercheckcertificate(request,id):
     if cert:
         print("mmmmmmmmm")
         k=Certificate.objects.get(course=s)
-        print(k)
-        print('kkkkkkkkkkkkkk')
-        serializer=teachercheckcertificateserializers(k)
-        return Response(serializer.data)
+        if k:
+            print(k)
+            print('kkkkkkkkkkkkkk')
+            serializer=teachercheckcertificateserializers(k)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_302_FOUND)
     else:
         return Response(status=status.HTTP_302_FOUND)
        

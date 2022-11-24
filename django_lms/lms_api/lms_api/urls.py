@@ -16,4 +16,4 @@ urlpatterns = [
     path('api/acounts/',include('accounts.urls')), 
     path('razorpay/', include('payments.urls')),
 
-]
+]+static(settings.STATIC_URL,document_root= settings.STATIC_ROOT)
