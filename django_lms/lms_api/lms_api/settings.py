@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'payments',
+    'rest_framework_swagger',
   
 ]
 
